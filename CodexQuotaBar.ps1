@@ -26,6 +26,10 @@ public static class CodexWindowNative {
     [DllImport("user32.dll")] private static extern int GetWindowTextLength(IntPtr hWnd);
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
+    public static bool IsForegroundWindow(IntPtr hWnd) {
+        return hWnd != IntPtr.Zero && GetForegroundWindow() == hWnd;
+    }
+
     public static IntPtr FindForegroundCodexWindow() {
         var hWnd = GetForegroundWindow();
         if (hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) return IntPtr.Zero;
@@ -176,6 +180,7 @@ $script:lastSnapshot = $null
 $script:lastError = '等待同步'
 $script:lastRefresh = [DateTime]::MinValue
 $script:codexHandle = [IntPtr]::Zero
+$script:quotaBarHandle = [IntPtr]::Zero
 $script:isDetailsOpen = $false
 
 $window = [System.Windows.Window]::new()
@@ -188,6 +193,9 @@ $window.Topmost = $true
 $window.ShowActivated = $false
 $window.SizeToContent = 'WidthAndHeight'
 $window.Visibility = 'Hidden'
+$window.Add_SourceInitialized({
+    $script:quotaBarHandle = ([System.Windows.Interop.WindowInteropHelper]::new($window)).Handle
+})
 
 $outer = [System.Windows.Controls.Border]::new()
 $outer.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#E6121418')
@@ -386,8 +394,10 @@ $timer.Interval = [TimeSpan]::FromMilliseconds(250)
 $timer.Add_Tick({
     $handle = [CodexWindowNative]::FindForegroundCodexWindow()
     if ($handle -eq [IntPtr]::Zero) {
-        $script:codexHandle = [IntPtr]::Zero
-        if ($window.Visibility -eq 'Visible') { $window.Hide() }
+        if (-not [CodexWindowNative]::IsForegroundWindow($script:quotaBarHandle)) {
+            $script:codexHandle = [IntPtr]::Zero
+            if ($window.Visibility -eq 'Visible') { $window.Hide() }
+        }
         return
     }
 
