@@ -198,17 +198,25 @@ $window.Add_SourceInitialized({
 })
 
 $outer = [System.Windows.Controls.Border]::new()
-$outer.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#E6121418')
-$outer.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#55606A78')
+$outer.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#DD171B22')
+$outer.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#4A677589')
 $outer.BorderThickness = '1'
 $outer.CornerRadius = '12'
-$outer.Padding = '14,5,14,5'
+$outer.Padding = '14,6,14,6'
 $outer.Cursor = [System.Windows.Input.Cursors]::Hand
 $outer.Width = 272
 $shadow = [System.Windows.Media.Effects.DropShadowEffect]::new()
 $shadow.Color = [System.Windows.Media.Colors]::Black
-$shadow.BlurRadius = 20; $shadow.ShadowDepth = 4; $shadow.Opacity = 0.34
+$shadow.BlurRadius = 24; $shadow.ShadowDepth = 5; $shadow.Opacity = 0.28
 $outer.Effect = $shadow
+$outer.Add_MouseEnter({
+    $outer.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#6688A0B5')
+    $outer.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#E21B2028')
+})
+$outer.Add_MouseLeave({
+    $outer.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#4A677589')
+    $outer.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#DD171B22')
+})
 $root = [System.Windows.Controls.StackPanel]::new()
 $outer.Child = $root
 
@@ -272,13 +280,15 @@ $weeklyMeter.Track.Margin = '0,3,0,0'
 $null = $weeklyStack.Children.Add($weeklyTitleRow); $null = $weeklyStack.Children.Add($weeklyValue); $null = $weeklyStack.Children.Add($weeklyMeter.Track); $null = $bar.Children.Add($weeklyStack)
 
 $details = [System.Windows.Controls.Border]::new()
+$details.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#B51E252E')
 $details.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#44505C68')
 $details.BorderThickness = '0,0,0,1'
-$details.Margin = '0,0,0,9'
-$details.Padding = '0,0,0,10'
+$details.CornerRadius = '9'
+$details.Margin = '0,0,0,10'
+$details.Padding = '10,10,10,10'
 $details.Visibility = 'Collapsed'
 $detailsStack = [System.Windows.Controls.StackPanel]::new(); $details.Child = $detailsStack
-$detailsHeader = [System.Windows.Controls.DockPanel]::new(); $detailsHeader.Margin = '0,0,0,10'
+$detailsHeader = [System.Windows.Controls.DockPanel]::new(); $detailsHeader.Margin = '0,0,0,8'
 $detailsTitle = New-TextBlock 'Codex 配额' 13 '#F3F4F6' 'SemiBold'
 $syncBadge = New-TextBlock '等待同步' 10 '#A7ADB7'
 [System.Windows.Controls.DockPanel]::SetDock($syncBadge, 'Right')
@@ -293,6 +303,7 @@ $null = $detailsStack.Children.Add($detailsHeader); $null = $detailsStack.Childr
 $refreshButton = [System.Windows.Controls.Button]::new()
 $refreshButton.Content = '立即同步'
 $refreshButton.FontFamily = 'Segoe UI'; $refreshButton.FontSize = 11
+$refreshButton.FontWeight = 'Medium'
 $refreshButton.Foreground = [System.Windows.Media.Brushes]::White
 $refreshButton.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#2F6EA8')
 $refreshButton.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#4E8BC2')
