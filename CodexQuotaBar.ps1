@@ -18,9 +18,7 @@ public static class CodexWindowNative {
     [StructLayout(LayoutKind.Sequential)]
     public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
 
-    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
-    [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr lParam);
+    [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
@@ -28,35 +26,32 @@ public static class CodexWindowNative {
     [DllImport("user32.dll")] private static extern int GetWindowTextLength(IntPtr hWnd);
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
-    public static IntPtr FindCodexWindow() {
-        IntPtr found = IntPtr.Zero;
-        EnumWindows((hWnd, _) => {
-            if (found != IntPtr.Zero || !IsWindowVisible(hWnd)) return true;
-            var length = GetWindowTextLength(hWnd);
-            if (length == 0) return true;
+    public static IntPtr FindForegroundCodexWindow() {
+        var hWnd = GetForegroundWindow();
+        if (hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) return IntPtr.Zero;
 
-            var titleBuilder = new StringBuilder(length + 1);
-            GetWindowText(hWnd, titleBuilder, titleBuilder.Capacity);
-            var title = titleBuilder.ToString();
-            uint processId;
-            GetWindowThreadProcessId(hWnd, out processId);
+        var length = GetWindowTextLength(hWnd);
+        if (length == 0) return IntPtr.Zero;
 
+        var titleBuilder = new StringBuilder(length + 1);
+        GetWindowText(hWnd, titleBuilder, titleBuilder.Capacity);
+        var title = titleBuilder.ToString();
+        uint processId;
+        GetWindowThreadProcessId(hWnd, out processId);
+
+        try {
+            var process = Process.GetProcessById((int)processId);
+            var name = process.ProcessName;
+            var isCodexProcess = name.Equals("codex", StringComparison.OrdinalIgnoreCase)
+                || name.Equals("openai.codex", StringComparison.OrdinalIgnoreCase)
+                || name.StartsWith("openai.codex.", StringComparison.OrdinalIgnoreCase);
+            var isCodexPackage = false;
             try {
-                var process = Process.GetProcessById((int)processId);
-                var name = process.ProcessName;
-                var isCodexProcess = name.Equals("codex", StringComparison.OrdinalIgnoreCase)
-                    || name.Equals("openai.codex", StringComparison.OrdinalIgnoreCase)
-                    || name.StartsWith("openai.codex.", StringComparison.OrdinalIgnoreCase);
-                var isCodexPackage = false;
-                try {
-                    var path = process.MainModule.FileName;
-                    isCodexPackage = path.IndexOf("OpenAI.Codex_", StringComparison.OrdinalIgnoreCase) >= 0;
-                } catch { }
-                if (isCodexProcess || isCodexPackage || title.IndexOf("Codex", StringComparison.OrdinalIgnoreCase) >= 0) found = hWnd;
+                var path = process.MainModule.FileName;
+                isCodexPackage = path.IndexOf("OpenAI.Codex_", StringComparison.OrdinalIgnoreCase) >= 0;
             } catch { }
-            return true;
-        }, IntPtr.Zero);
-        return found;
+            return isCodexProcess || isCodexPackage || title.IndexOf("Codex", StringComparison.OrdinalIgnoreCase) >= 0 ? hWnd : IntPtr.Zero;
+        } catch { return IntPtr.Zero; }
     }
 }
 '@
@@ -387,9 +382,9 @@ if ($ValidateOnly) {
 }
 
 $timer = [System.Windows.Threading.DispatcherTimer]::new()
-$timer.Interval = [TimeSpan]::FromSeconds(2)
+$timer.Interval = [TimeSpan]::FromMilliseconds(250)
 $timer.Add_Tick({
-    $handle = [CodexWindowNative]::FindCodexWindow()
+    $handle = [CodexWindowNative]::FindForegroundCodexWindow()
     if ($handle -eq [IntPtr]::Zero) {
         $script:codexHandle = [IntPtr]::Zero
         if ($window.Visibility -eq 'Visible') { $window.Hide() }
