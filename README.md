@@ -1,5 +1,7 @@
 # Codex Quota Bar
 
+[English](README.md) · [中文](README.zh-CN.md)
+
 A lightweight Windows desktop bar that shows Codex five-hour and weekly remaining quota, with clear warning states and a compact details panel.
 
 ![Codex Quota Bar soft-glass preview](assets/codex-quota-bar-example.svg)
