@@ -212,7 +212,7 @@ $outer.Child = $root
 $bar = [System.Windows.Controls.StackPanel]::new()
 $bar.Orientation = 'Horizontal'
 
-function New-TextBlock([string]$Text, [double]$Size, [string]$Color, [string]$Weight = 'Normal') {
+function New-TextBlock([string]$Text, [double]$Size, [string]$Color, [string]$Weight = 'Medium') {
     $block = [System.Windows.Controls.TextBlock]::new()
     $block.Text = $Text
     $block.FontFamily = 'Segoe UI'
@@ -221,7 +221,7 @@ function New-TextBlock([string]$Text, [double]$Size, [string]$Color, [string]$We
     $block.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString($Color)
     $block.VerticalAlignment = 'Center'
     $block.SetValue([System.Windows.Media.TextOptions]::TextFormattingModeProperty, [System.Windows.Media.TextFormattingMode]::Display)
-    $block.SetValue([System.Windows.Media.TextOptions]::TextRenderingModeProperty, [System.Windows.Media.TextRenderingMode]::ClearType)
+    $block.SetValue([System.Windows.Media.TextOptions]::TextRenderingModeProperty, [System.Windows.Media.TextRenderingMode]::Grayscale)
     return $block
 }
 
