@@ -148,7 +148,7 @@ function Get-CodexRateLimits {
         [void](Read-RpcResult $reader 1 8000)
         Send-RpcMessage $writer @{ method = 'initialized'; params = @{} }
         Send-RpcMessage $writer @{ id = 2; method = 'account/rateLimits/read'; params = @{} }
-        $result = Read-RpcResult $reader 2 3000
+        $result = Read-RpcResult $reader 2 15000
 
         $limits = Get-ObjectProperty $result @('rateLimits', 'rate_limits')
         $primary = Get-ObjectProperty $limits @('primary')
