@@ -2,13 +2,13 @@
 
 [English](README.md) · [中文](README.zh-CN.md)
 
-A lightweight Windows desktop bar that shows Codex five-hour and weekly remaining quota, with clear warning states and a compact details panel.
+A lightweight Windows desktop bar that shows Codex weekly remaining quota, with clear warning states and a compact details panel.
 
 ![Codex Quota Bar soft-glass preview](assets/codex-quota-bar-example.svg)
 
 ## Highlights
 
-- Reads live quota and reset times from the local Codex CLI read-only `app-server` JSON-RPC.
+- Reads live weekly quota and reset times from the local Codex CLI read-only `app-server` JSON-RPC.
 - Appears only while a Codex desktop window is in the foreground; hides when another app becomes active.
 - Soft-glass dark UI with low-contrast borders, hover polish, status dots, and compact progress lines.
 - Click the bar to expand a details panel with reset times, sync state, and a manual sync button.

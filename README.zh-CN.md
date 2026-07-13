@@ -2,13 +2,13 @@
 
 [English](README.md) · [中文](README.zh-CN.md)
 
-一个轻量的 Windows 桌面浮条，用于显示 Codex 的 5 小时与每周剩余额度，并在额度偏低时给出清晰预警。
+一个轻量的 Windows 桌面浮条，用于显示 Codex 的每周剩余额度，并在额度偏低时给出清晰预警。
 
 ![Codex Quota Bar 柔雾玻璃示例](assets/codex-quota-bar-example.svg)
 
 ## 功能
 
-- 通过本机 Codex CLI 的只读 `app-server` JSON-RPC 获取实时额度与重置时间。
+- 通过本机 Codex CLI 的只读 `app-server` JSON-RPC 获取每周额度与重置时间。
 - 只有 Codex 桌面窗口处于前台时显示，切换到其他应用后隐藏。
 - 柔雾玻璃深色界面，搭配低存在感边框、悬停高亮、状态点和紧凑进度线。
 - 点击浮条展开详情面板，查看重置时间、同步状态并手动同步。

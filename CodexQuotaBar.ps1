@@ -151,18 +151,15 @@ function Get-CodexRateLimits {
         $result = Read-RpcResult $reader 2 15000
 
         $limits = Get-ObjectProperty $result @('rateLimits', 'rate_limits')
-        $primary = Get-ObjectProperty $limits @('primary')
-        $secondary = Get-ObjectProperty $limits @('secondary')
-        if ($null -eq $primary -or $null -eq $secondary) { throw 'Codex did not return both 5-hour and weekly usage windows.' }
+        $weeklyWindow = Get-ObjectProperty $limits @('secondary')
+        if ($null -eq $weeklyWindow) { $weeklyWindow = Get-ObjectProperty $limits @('primary') }
+        if ($null -eq $weeklyWindow) { throw 'Codex did not return a weekly usage window.' }
 
-        $primaryUsed = [double](Get-ObjectProperty $primary @('usedPercent', 'used_percent'))
-        $secondaryUsed = [double](Get-ObjectProperty $secondary @('usedPercent', 'used_percent'))
+        $weeklyUsed = [double](Get-ObjectProperty $weeklyWindow @('usedPercent', 'used_percent'))
         [pscustomobject]@{
-            FiveHourRemaining = [Math]::Max(0, [Math]::Min(100, [Math]::Round(100 - $primaryUsed)))
-            WeeklyRemaining   = [Math]::Max(0, [Math]::Min(100, [Math]::Round(100 - $secondaryUsed)))
-            FiveHourReset     = Convert-ResetTime (Get-ObjectProperty $primary @('resetsAt', 'resets_at'))
-            WeeklyReset       = Convert-ResetTime (Get-ObjectProperty $secondary @('resetsAt', 'resets_at'))
-            UpdatedAt         = Get-Date
+            WeeklyRemaining = [Math]::Max(0, [Math]::Min(100, [Math]::Round(100 - $weeklyUsed)))
+            WeeklyReset     = Convert-ResetTime (Get-ObjectProperty $weeklyWindow @('resetsAt', 'resets_at'))
+            UpdatedAt       = Get-Date
         }
     }
     finally {
@@ -204,7 +201,7 @@ $outer.BorderThickness = '1'
 $outer.CornerRadius = '12'
 $outer.Padding = '14,6,14,6'
 $outer.Cursor = [System.Windows.Input.Cursors]::Hand
-$outer.Width = 272
+$outer.Width = 178
 $shadow = [System.Windows.Media.Effects.DropShadowEffect]::new()
 $shadow.Color = [System.Windows.Media.Colors]::Black
 $shadow.BlurRadius = 24; $shadow.ShadowDepth = 5; $shadow.Opacity = 0.28
@@ -251,23 +248,9 @@ function New-HairlineMeter {
 $brand = New-TextBlock 'Codex 配额' 11 '#E8E8EB' 'SemiBold'
 $brand.Margin = '0,0,12,0'
 $null = $bar.Children.Add($brand)
-$divider1 = [System.Windows.Controls.Border]::new()
-$divider1.Width = 1; $divider1.Height = 28; $divider1.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#32353C')
-$divider1.Margin = '0,0,12,0'; $null = $bar.Children.Add($divider1)
-
-$fiveStack = [System.Windows.Controls.StackPanel]::new(); $fiveStack.Margin = '0,0,12,0'
-$fiveTitleRow = [System.Windows.Controls.StackPanel]::new(); $fiveTitleRow.Orientation = 'Horizontal'
-$fiveStatusDot = [System.Windows.Shapes.Ellipse]::new(); $fiveStatusDot.Width = 7; $fiveStatusDot.Height = 7; $fiveStatusDot.Margin = '0,0,5,0'
-$fiveStatusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#737A85')
-$null = $fiveTitleRow.Children.Add($fiveStatusDot); $null = $fiveTitleRow.Children.Add((New-TextBlock '5 小时' 10 '#C3C9D2'))
-$fiveValue = New-TextBlock '—' 17 '#F4F4F5' 'SemiBold'
-$fiveMeter = New-HairlineMeter
-$fiveMeter.Track.Margin = '0,3,0,0'
-$null = $fiveStack.Children.Add($fiveTitleRow); $null = $fiveStack.Children.Add($fiveValue); $null = $fiveStack.Children.Add($fiveMeter.Track); $null = $bar.Children.Add($fiveStack)
-
-$divider2 = [System.Windows.Controls.Border]::new()
-$divider2.Width = 1; $divider2.Height = 28; $divider2.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#32353C')
-$divider2.Margin = '0,0,12,0'; $null = $bar.Children.Add($divider2)
+$divider = [System.Windows.Controls.Border]::new()
+$divider.Width = 1; $divider.Height = 28; $divider.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#32353C')
+$divider.Margin = '0,0,12,0'; $null = $bar.Children.Add($divider)
 
 $weeklyStack = [System.Windows.Controls.StackPanel]::new()
 $weeklyTitleRow = [System.Windows.Controls.StackPanel]::new(); $weeklyTitleRow.Orientation = 'Horizontal'
@@ -293,13 +276,11 @@ $detailsTitle = New-TextBlock 'Codex 配额' 13 '#F3F4F6' 'SemiBold'
 $syncBadge = New-TextBlock '等待同步' 10 '#A7ADB7'
 [System.Windows.Controls.DockPanel]::SetDock($syncBadge, 'Right')
 $null = $detailsHeader.Children.Add($syncBadge); $null = $detailsHeader.Children.Add($detailsTitle)
-$fiveDetailText = New-TextBlock '5 小时   等待同步' 11 '#D8DCE2'
-$fiveDetailText.Margin = '0,0,0,6'
-$weeklyDetailText = New-TextBlock '每周     等待同步' 11 '#D8DCE2'
+$weeklyDetailText = New-TextBlock '每周   等待同步' 11 '#D8DCE2'
 $weeklyDetailText.Margin = '0,0,0,10'
 $syncText = New-TextBlock '上次同步：等待同步' 10 '#89909B'
 $syncText.Margin = '0,0,0,8'
-$null = $detailsStack.Children.Add($detailsHeader); $null = $detailsStack.Children.Add($fiveDetailText); $null = $detailsStack.Children.Add($weeklyDetailText); $null = $detailsStack.Children.Add($syncText)
+$null = $detailsStack.Children.Add($detailsHeader); $null = $detailsStack.Children.Add($weeklyDetailText); $null = $detailsStack.Children.Add($syncText)
 $refreshButton = [System.Windows.Controls.Button]::new()
 $refreshButton.Content = '立即同步'
 $refreshButton.FontFamily = 'Segoe UI'; $refreshButton.FontSize = 11
@@ -331,34 +312,23 @@ function Update-Overlay {
     }
 
     if ($null -eq $script:lastSnapshot) {
-        $fiveValue.Text = '—'; $weeklyValue.Text = '—'
-        $fiveMeter.Fill.Width = 0; $weeklyMeter.Fill.Width = 0
-        $fiveStatusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#737A85')
+        $weeklyValue.Text = '—'
+        $weeklyMeter.Fill.Width = 0
         $statusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#737A85')
-        $fiveDetailText.Text = '5 小时   等待同步'
-        $weeklyDetailText.Text = '每周     等待同步'
+        $weeklyDetailText.Text = '每周   等待同步'
         $syncBadge.Text = '等待同步'
         $syncText.Text = "上次同步：$script:lastError"
         return
     }
 
-    $five = $script:lastSnapshot.FiveHourRemaining
     $weekly = $script:lastSnapshot.WeeklyRemaining
-    $minimum = [Math]::Min($five, $weekly)
-    $color = if ($minimum -lt 10) { '#F36D6D' } elseif ($minimum -lt 20) { '#F2BA55' } else { '#65D5A4' }
-    $fiveColor = if ($five -lt 10) { '#F36D6D' } elseif ($five -lt 20) { '#F2BA55' } else { '#65D5A4' }
     $weeklyColor = if ($weekly -lt 10) { '#F36D6D' } elseif ($weekly -lt 20) { '#F2BA55' } else { '#65D5A4' }
-    $fiveValue.Text = "$five%"; $weeklyValue.Text = "$weekly%"
-    $fiveValue.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString($fiveColor)
+    $weeklyValue.Text = "$weekly%"
     $weeklyValue.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString($weeklyColor)
-    $fiveMeter.Fill.Width = [Math]::Round(44 * $five / 100)
     $weeklyMeter.Fill.Width = [Math]::Round(44 * $weekly / 100)
-    $fiveMeter.Fill.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString($fiveColor)
     $weeklyMeter.Fill.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString($weeklyColor)
-    $fiveStatusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString($fiveColor)
     $statusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString($weeklyColor)
-    $fiveDetailText.Text = "5 小时   $five%   ·   $(Format-Reset $script:lastSnapshot.FiveHourReset) 重置"
-    $weeklyDetailText.Text = "每周     $weekly%   ·   $(Format-Reset $script:lastSnapshot.WeeklyReset) 重置"
+    $weeklyDetailText.Text = "每周   $weekly%   ·   $(Format-Reset $script:lastSnapshot.WeeklyReset) 重置"
     $syncBadge.Text = if ($script:lastError) { '数据待同步' } else { '已同步' }
     $syncText.Text = if ($script:lastError) { "上次同步：数据可能已过期 — $script:lastError" } else { "上次同步：$($script:lastSnapshot.UpdatedAt.ToString('HH:mm:ss'))" }
 }
