@@ -301,7 +301,7 @@ $window.Content = $outer
 
 function Format-Reset($Date) {
     if ($null -eq $Date) { return '未知' }
-    return $Date.ToString('yyyy年M月d日 HH:mm')
+    return $Date.ToString('M月d日 HH:mm')
 }
 
 function Update-Overlay {
