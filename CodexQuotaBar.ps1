@@ -276,11 +276,16 @@ $detailsTitle = New-TextBlock 'Codex 配额' 13 '#F3F4F6' 'SemiBold'
 $syncBadge = New-TextBlock '等待同步' 10 '#A7ADB7'
 [System.Windows.Controls.DockPanel]::SetDock($syncBadge, 'Right')
 $null = $detailsHeader.Children.Add($syncBadge); $null = $detailsHeader.Children.Add($detailsTitle)
-$weeklyDetailText = New-TextBlock '每周   等待同步' 11 '#D8DCE2'
-$weeklyDetailText.Margin = '0,0,0,10'
+$weeklyDetailLabel = New-TextBlock '每周剩余' 10 '#A7ADB7'
+$weeklyDetailValue = New-TextBlock '—' 22 '#F3F4F6' 'SemiBold'
+$weeklyDetailValue.Margin = '0,0,0,8'
+$resetLabel = New-TextBlock '下次重置' 10 '#A7ADB7'
+$resetValue = New-TextBlock '等待同步' 11 '#D8DCE2'
+$resetValue.TextWrapping = 'Wrap'
+$resetValue.Margin = '0,1,0,10'
 $syncText = New-TextBlock '上次同步：等待同步' 10 '#89909B'
 $syncText.Margin = '0,0,0,8'
-$null = $detailsStack.Children.Add($detailsHeader); $null = $detailsStack.Children.Add($weeklyDetailText); $null = $detailsStack.Children.Add($syncText)
+$null = $detailsStack.Children.Add($detailsHeader); $null = $detailsStack.Children.Add($weeklyDetailLabel); $null = $detailsStack.Children.Add($weeklyDetailValue); $null = $detailsStack.Children.Add($resetLabel); $null = $detailsStack.Children.Add($resetValue); $null = $detailsStack.Children.Add($syncText)
 $refreshButton = [System.Windows.Controls.Button]::new()
 $refreshButton.Content = '立即同步'
 $refreshButton.FontFamily = 'Segoe UI'; $refreshButton.FontSize = 11
@@ -289,14 +294,14 @@ $refreshButton.Foreground = [System.Windows.Media.Brushes]::White
 $refreshButton.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#2F6EA8')
 $refreshButton.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#4E8BC2')
 $refreshButton.BorderThickness = '1'; $refreshButton.Padding = '10,5,10,5'
-$refreshButton.HorizontalAlignment = 'Left'
+$refreshButton.HorizontalAlignment = 'Stretch'
 $null = $detailsStack.Children.Add($refreshButton)
 $null = $root.Children.Add($details); $null = $root.Children.Add($bar)
 $window.Content = $outer
 
 function Format-Reset($Date) {
     if ($null -eq $Date) { return '未知' }
-    return $Date.ToString('M月d日 HH:mm')
+    return $Date.ToString('yyyy年M月d日 HH:mm')
 }
 
 function Update-Overlay {
@@ -315,7 +320,8 @@ function Update-Overlay {
         $weeklyValue.Text = '—'
         $weeklyMeter.Fill.Width = 0
         $statusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#737A85')
-        $weeklyDetailText.Text = '每周   等待同步'
+        $weeklyDetailValue.Text = '—'
+        $resetValue.Text = '等待同步'
         $syncBadge.Text = '等待同步'
         $syncText.Text = "上次同步：$script:lastError"
         return
@@ -328,7 +334,9 @@ function Update-Overlay {
     $weeklyMeter.Fill.Width = [Math]::Round(44 * $weekly / 100)
     $weeklyMeter.Fill.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString($weeklyColor)
     $statusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString($weeklyColor)
-    $weeklyDetailText.Text = "每周   $weekly%   ·   $(Format-Reset $script:lastSnapshot.WeeklyReset) 重置"
+    $weeklyDetailValue.Text = "$weekly%"
+    $weeklyDetailValue.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString($weeklyColor)
+    $resetValue.Text = Format-Reset $script:lastSnapshot.WeeklyReset
     $syncBadge.Text = if ($script:lastError) { '数据待同步' } else { '已同步' }
     $syncText.Text = if ($script:lastError) { "上次同步：数据可能已过期 — $script:lastError" } else { "上次同步：$($script:lastSnapshot.UpdatedAt.ToString('HH:mm:ss'))" }
 }
