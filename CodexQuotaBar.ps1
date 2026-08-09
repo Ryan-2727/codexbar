@@ -35,10 +35,8 @@ public static class CodexWindowNative {
         if (hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) return IntPtr.Zero;
 
         var length = GetWindowTextLength(hWnd);
-        if (length == 0) return IntPtr.Zero;
-
-        var titleBuilder = new StringBuilder(length + 1);
-        GetWindowText(hWnd, titleBuilder, titleBuilder.Capacity);
+        var titleBuilder = new StringBuilder(Math.Max(length + 1, 1));
+        if (length > 0) GetWindowText(hWnd, titleBuilder, titleBuilder.Capacity);
         var title = titleBuilder.ToString();
         uint processId;
         GetWindowThreadProcessId(hWnd, out processId);
@@ -381,24 +379,29 @@ if ($ValidateOnly) {
 $timer = [System.Windows.Threading.DispatcherTimer]::new()
 $timer.Interval = [TimeSpan]::FromMilliseconds(250)
 $timer.Add_Tick({
-    $handle = [CodexWindowNative]::FindForegroundCodexWindow()
-    if ($handle -eq [IntPtr]::Zero) {
-        if (-not [CodexWindowNative]::IsForegroundWindow($script:quotaBarHandle)) {
-            $script:codexHandle = [IntPtr]::Zero
-            if ($window.Visibility -eq 'Visible') { $window.Hide() }
+    try {
+        $handle = [CodexWindowNative]::FindForegroundCodexWindow()
+        if ($handle -eq [IntPtr]::Zero) {
+            if (-not [CodexWindowNative]::IsForegroundWindow($script:quotaBarHandle)) {
+                $script:codexHandle = [IntPtr]::Zero
+                if ($window.Visibility -eq 'Visible') { $window.Hide() }
+            }
+            return
         }
-        return
-    }
 
-    $script:codexHandle = $handle
-    if ([CodexWindowNative]::IsIconic($handle)) {
-        if ($window.Visibility -eq 'Visible') { $window.Hide() }
-        return
-    }
+        $script:codexHandle = $handle
+        if ([CodexWindowNative]::IsIconic($handle)) {
+            if ($window.Visibility -eq 'Visible') { $window.Hide() }
+            return
+        }
 
-    if ($window.Visibility -ne 'Visible') { $window.Show() }
-    Position-Overlay
-    if (((Get-Date) - $script:lastRefresh).TotalSeconds -ge 60) { Update-Overlay; Position-Overlay }
+        if ($window.Visibility -ne 'Visible') { $window.Show() }
+        Position-Overlay
+        if (((Get-Date) - $script:lastRefresh).TotalSeconds -ge 60) { Update-Overlay; Position-Overlay }
+    }
+    catch {
+        $script:lastError = "Window detection: $($_.Exception.Message)"
+    }
 })
 
 $window.Add_Closed({ $timer.Stop() })
