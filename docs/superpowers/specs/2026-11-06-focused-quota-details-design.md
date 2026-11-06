@@ -20,6 +20,12 @@ Each section contains:
 - The current remaining percentage in the existing quota status color.
 - A prominent `下次重置` label and the complete reset time.
 
+Use closely balanced typography for the two primary values:
+
+- Show the remaining percentage at 18 pixels.
+- Show the reset time at 16 pixels.
+- Keep both values semibold, with the remaining percentage only slightly larger.
+
 Reset time format remains `M月d日 HH:mm`, without a year or seconds.
 
 Remove these expanded-panel elements:
@@ -51,4 +57,4 @@ Add a lightweight footer below the quota sections:
 - The running bar has exactly one watchdog and one UI process.
 - Live RPC returns both five-hour and weekly quota windows.
 - The installed runtime script matches the repository script.
-- Static checks confirm the removed heading and status badge are absent, both quota sections and reset fields remain, the compact refresh control and last-sync text remain, and the horizontal offset increased by exactly 20 pixels.
+- Static checks confirm the removed heading and status badge are absent, both quota sections and reset fields remain, detail percentages use 18-pixel text, reset times use 16-pixel text, the compact refresh control and last-sync text remain, and the horizontal offset increased by exactly 20 pixels.
