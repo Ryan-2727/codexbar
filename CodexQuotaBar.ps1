@@ -356,7 +356,7 @@ function Set-QuotaView($Remaining, $Reset, $ValueBlock, $Meter, $Dot, $DetailVal
         return
     }
 
-    $color = if ($Remaining -lt 10) { '#F36D6D' } elseif ($Remaining -lt 20) { '#F2BA55' } else { '#65D5A4' }
+    $color = if ($Remaining -lt 20) { '#F36D6D' } elseif ($Remaining -lt 40) { '#F2BA55' } else { '#65D5A4' }
     $ValueBlock.Text = "$Remaining%"
     $ValueBlock.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString($color)
     $Meter.Fill.Width = [Math]::Round(44 * $Remaining / 100)
@@ -399,7 +399,7 @@ function Position-Overlay {
     if ($script:codexHandle -eq [IntPtr]::Zero) { return }
     $window.UpdateLayout()
     $workArea = [System.Windows.SystemParameters]::WorkArea
-    $window.Left = $workArea.Left + ($workArea.Width * 0.14) + 51
+    $window.Left = $workArea.Left + ($workArea.Width * 0.14) + 71
     $window.Top = $workArea.Bottom - $window.ActualHeight - 8
 }
 
