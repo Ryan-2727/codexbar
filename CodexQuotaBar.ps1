@@ -301,41 +301,41 @@ $details.Margin = '0,0,0,10'
 $details.Padding = '10,10,10,10'
 $details.Visibility = 'Collapsed'
 $detailsStack = [System.Windows.Controls.StackPanel]::new(); $details.Child = $detailsStack
-$detailsHeader = [System.Windows.Controls.DockPanel]::new(); $detailsHeader.Margin = '0,0,0,8'
-$detailsTitle = New-TextBlock 'Codex 配额' 13 '#F3F4F6' 'SemiBold'
-$syncBadge = New-TextBlock '等待同步' 10 '#A7ADB7'
-[System.Windows.Controls.DockPanel]::SetDock($syncBadge, 'Right')
-$null = $detailsHeader.Children.Add($syncBadge); $null = $detailsHeader.Children.Add($detailsTitle)
-$fiveDetailLabel = New-TextBlock '5 小时剩余' 10 '#A7ADB7'
+$fiveDetailLabel = New-TextBlock '5 小时' 11 '#C3C9D2' 'SemiBold'
 $fiveDetailValue = New-TextBlock '—' 22 '#F3F4F6' 'SemiBold'
-$fiveDetailValue.Margin = '0,0,0,5'
-$fiveResetLabel = New-TextBlock '下次重置' 10 '#A7ADB7'
-$fiveResetValue = New-TextBlock '等待同步' 11 '#D8DCE2'
+$fiveDetailValue.Margin = '0,1,0,5'
+$fiveResetLabel = New-TextBlock '下次重置' 9 '#89909B'
+$fiveResetValue = New-TextBlock '等待同步' 13 '#F3F4F6' 'SemiBold'
 $fiveResetValue.TextWrapping = 'Wrap'
-$fiveResetValue.Margin = '0,1,0,8'
+$fiveResetValue.Margin = '0,1,0,10'
 $detailDivider = [System.Windows.Controls.Border]::new()
 $detailDivider.Height = 1; $detailDivider.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#34414C57')
-$detailDivider.Margin = '0,0,0,8'
-$weeklyDetailLabel = New-TextBlock '每周剩余' 10 '#A7ADB7'
+$detailDivider.Margin = '0,0,0,10'
+$weeklyDetailLabel = New-TextBlock '每周' 11 '#C3C9D2' 'SemiBold'
 $weeklyDetailValue = New-TextBlock '—' 22 '#F3F4F6' 'SemiBold'
-$weeklyDetailValue.Margin = '0,0,0,5'
-$weeklyResetLabel = New-TextBlock '下次重置' 10 '#A7ADB7'
-$weeklyResetValue = New-TextBlock '等待同步' 11 '#D8DCE2'
+$weeklyDetailValue.Margin = '0,1,0,5'
+$weeklyResetLabel = New-TextBlock '下次重置' 9 '#89909B'
+$weeklyResetValue = New-TextBlock '等待同步' 13 '#F3F4F6' 'SemiBold'
 $weeklyResetValue.TextWrapping = 'Wrap'
 $weeklyResetValue.Margin = '0,1,0,10'
-$syncText = New-TextBlock '上次同步：等待同步' 10 '#89909B'
-$syncText.Margin = '0,0,0,8'
-$null = $detailsStack.Children.Add($detailsHeader); $null = $detailsStack.Children.Add($fiveDetailLabel); $null = $detailsStack.Children.Add($fiveDetailValue); $null = $detailsStack.Children.Add($fiveResetLabel); $null = $detailsStack.Children.Add($fiveResetValue); $null = $detailsStack.Children.Add($detailDivider); $null = $detailsStack.Children.Add($weeklyDetailLabel); $null = $detailsStack.Children.Add($weeklyDetailValue); $null = $detailsStack.Children.Add($weeklyResetLabel); $null = $detailsStack.Children.Add($weeklyResetValue); $null = $detailsStack.Children.Add($syncText)
+$syncFooter = [System.Windows.Controls.DockPanel]::new()
+$syncFooter.Margin = '0,2,0,0'
 $refreshButton = [System.Windows.Controls.Button]::new()
-$refreshButton.Content = '立即同步'
-$refreshButton.FontFamily = 'Segoe UI'; $refreshButton.FontSize = 11
-$refreshButton.FontWeight = 'Medium'
+$refreshButton.Content = '↻'
+$refreshButton.ToolTip = '立即同步'
+$refreshButton.FontFamily = 'Segoe UI Symbol'; $refreshButton.FontSize = 15
+$refreshButton.FontWeight = 'SemiBold'
 $refreshButton.Foreground = [System.Windows.Media.Brushes]::White
-$refreshButton.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#2F6EA8')
-$refreshButton.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#4E8BC2')
-$refreshButton.BorderThickness = '1'; $refreshButton.Padding = '10,5,10,5'
-$refreshButton.HorizontalAlignment = 'Stretch'
-$null = $detailsStack.Children.Add($refreshButton)
+$refreshButton.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#263B4D5E')
+$refreshButton.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#4A657A8E')
+$refreshButton.BorderThickness = '1'; $refreshButton.Padding = '0'
+$refreshButton.Width = 24; $refreshButton.Height = 24
+$refreshButton.Cursor = [System.Windows.Input.Cursors]::Hand
+[System.Windows.Controls.DockPanel]::SetDock($refreshButton, 'Right')
+$syncText = New-TextBlock '等待同步' 9 '#89909B'
+$syncText.Margin = '0,0,6,0'
+$null = $syncFooter.Children.Add($refreshButton); $null = $syncFooter.Children.Add($syncText)
+$null = $detailsStack.Children.Add($fiveDetailLabel); $null = $detailsStack.Children.Add($fiveDetailValue); $null = $detailsStack.Children.Add($fiveResetLabel); $null = $detailsStack.Children.Add($fiveResetValue); $null = $detailsStack.Children.Add($detailDivider); $null = $detailsStack.Children.Add($weeklyDetailLabel); $null = $detailsStack.Children.Add($weeklyDetailValue); $null = $detailsStack.Children.Add($weeklyResetLabel); $null = $detailsStack.Children.Add($weeklyResetValue); $null = $detailsStack.Children.Add($syncFooter)
 $null = $root.Children.Add($details); $null = $root.Children.Add($bar)
 $window.Content = $outer
 
@@ -386,22 +386,20 @@ function Update-Overlay {
         $weeklyStatusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#737A85')
         $fiveDetailValue.Text = '—'; $weeklyDetailValue.Text = '—'
         $fiveResetValue.Text = '等待同步'; $weeklyResetValue.Text = '等待同步'
-        $syncBadge.Text = '等待同步'
-        $syncText.Text = "上次同步：$script:lastError"
+        $syncText.Text = if ($script:lastError) { '同步失败' } else { '等待同步' }
         return
     }
 
     Set-QuotaView $script:lastSnapshot.FiveHourRemaining $script:lastSnapshot.FiveHourReset $fiveValue $fiveMeter $fiveStatusDot $fiveDetailValue $fiveResetValue
     Set-QuotaView $script:lastSnapshot.WeeklyRemaining $script:lastSnapshot.WeeklyReset $weeklyValue $weeklyMeter $weeklyStatusDot $weeklyDetailValue $weeklyResetValue
-    $syncBadge.Text = if ($script:lastError) { '数据待同步' } else { '已同步' }
-    $syncText.Text = if ($script:lastError) { "上次同步：数据可能已过期 — $script:lastError" } else { "上次同步：$($script:lastSnapshot.UpdatedAt.ToString('HH:mm:ss'))" }
+    $syncText.Text = if ($script:lastError) { '数据可能已过期' } else { "上次同步 $($script:lastSnapshot.UpdatedAt.ToString('HH:mm:ss'))" }
 }
 
 function Position-Overlay {
     if ($script:codexHandle -eq [IntPtr]::Zero) { return }
     $window.UpdateLayout()
     $workArea = [System.Windows.SystemParameters]::WorkArea
-    $window.Left = $workArea.Left + ($workArea.Width * 0.14) + 31
+    $window.Left = $workArea.Left + ($workArea.Width * 0.14) + 51
     $window.Top = $workArea.Bottom - $window.ActualHeight - 8
 }
 
@@ -419,7 +417,7 @@ function Toggle-Details {
     Position-Overlay
 }
 
-$outer.Add_MouseLeftButtonUp({ Toggle-Details })
+$outer.Add_MouseLeftButtonUp({ if (-not $refreshButton.IsMouseOver) { Toggle-Details } })
 $refreshButton.Add_Click({ Update-Overlay; Position-Overlay })
 $window.Add_Deactivated({
     if ($script:isDetailsOpen) {
