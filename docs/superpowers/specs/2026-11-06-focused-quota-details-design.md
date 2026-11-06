@@ -54,13 +54,24 @@ Add a lightweight footer below the quota sections:
 - Give the refresh button a hover tooltip so its purpose remains clear without a text label.
 - Keep the footer visually secondary to the quota values and reset times.
 
+## Motion
+
+Use short, non-scaling transitions so text remains sharp:
+
+- Opening the details panel fades it from transparent to opaque while translating it upward by 6 pixels over 180 milliseconds.
+- Closing fades the panel out while translating it downward by 6 pixels over 120 milliseconds, then collapses it.
+- Use ease-out motion when opening and ease-in motion when closing.
+- Clicking the refresh icon rotates the arrow 360 degrees over 400 milliseconds.
+- Disable repeat refresh clicks during the arrow animation and quota refresh, then restore the button afterward.
+- Start the existing synchronous quota refresh after the single rotation completes; do not add background runspaces or change the data-fetching architecture.
+
 ## Data and behavior
 
 - Continue using the same read-only Codex JSON-RPC data source.
 - Keep automatic refresh and watchdog behavior unchanged.
 - When data is unavailable, continue showing the existing unavailable/waiting messages in the quota and reset fields.
 - Clicking the compact bar continues to expand and collapse the details panel.
-- Clicking the refresh icon immediately requests fresh quota data and updates the sync timestamp.
+- Clicking the refresh icon starts the rotation feedback, then requests fresh quota data and updates the sync timestamp.
 
 ## Verification
 
@@ -69,4 +80,5 @@ Add a lightweight footer below the quota sections:
 - Live RPC returns both five-hour and weekly quota windows.
 - The installed runtime script matches the repository script.
 - Boundary checks confirm 19% is red, 20% and 39% are yellow, and 40% is green.
+- Animation checks confirm the details panel uses the specified open and close durations, the close animation collapses the panel when complete, and the refresh icon has a centered rotation transform.
 - Static checks confirm the removed heading and status badge are absent, both quota sections and reset fields remain, detail percentages use 18-pixel text, reset times use 16-pixel text, the compact refresh control and last-sync text remain, and the horizontal offset is 71 pixels.
