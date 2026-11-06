@@ -26,10 +26,16 @@ Remove these expanded-panel elements:
 
 - `Codex 配额` heading.
 - Sync status badge.
-- Last-sync timestamp or error text.
-- Manual sync button.
 
 Retain the divider between the two sections and the existing expand/collapse animation.
+
+Add a lightweight footer below the quota sections:
+
+- Show `上次同步 HH:mm:ss` on the left.
+- When the latest refresh failed, use the same line to indicate that the displayed data may be stale.
+- Place a small icon-only refresh button on the right.
+- Give the refresh button a hover tooltip so its purpose remains clear without a text label.
+- Keep the footer visually secondary to the quota values and reset times.
 
 ## Data and behavior
 
@@ -37,6 +43,7 @@ Retain the divider between the two sections and the existing expand/collapse ani
 - Keep automatic refresh and watchdog behavior unchanged.
 - When data is unavailable, continue showing the existing unavailable/waiting messages in the quota and reset fields.
 - Clicking the compact bar continues to expand and collapse the details panel.
+- Clicking the refresh icon immediately requests fresh quota data and updates the sync timestamp.
 
 ## Verification
 
@@ -44,4 +51,4 @@ Retain the divider between the two sections and the existing expand/collapse ani
 - The running bar has exactly one watchdog and one UI process.
 - Live RPC returns both five-hour and weekly quota windows.
 - The installed runtime script matches the repository script.
-- Static checks confirm the removed expanded-panel elements are absent, both quota sections and reset fields remain, and the horizontal offset increased by exactly 20 pixels.
+- Static checks confirm the removed heading and status badge are absent, both quota sections and reset fields remain, the compact refresh control and last-sync text remain, and the horizontal offset increased by exactly 20 pixels.
