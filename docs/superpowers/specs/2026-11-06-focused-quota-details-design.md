@@ -2,13 +2,24 @@
 
 ## Goal
 
-Move the quota bar 20 pixels to the right and simplify the expanded panel so it focuses on the current five-hour and weekly remaining quotas and their next reset times.
+Move the quota bar 40 pixels to the right from its compact-bar baseline and simplify the expanded panel so it focuses on the current five-hour and weekly remaining quotas and their next reset times.
 
 ## Compact bar position
 
 - Preserve the current size and styling.
-- Move the whole overlay 20 pixels to the right from its current position.
+- Position the whole overlay 40 pixels to the right from the original compact-bar baseline. This includes an additional 20-pixel move from the current implementation.
 - Keep foreground-only Codex visibility behavior unchanged.
+
+## Quota status colors
+
+Use fixed remaining-quota bands for both the five-hour and weekly windows:
+
+- 40% through 100% remaining: green `#65D5A4`.
+- 20% through 39% remaining: yellow `#F2BA55`.
+- 0% through 19% remaining: red `#F36D6D`.
+- Unavailable quota data: keep the existing neutral gray state.
+
+Apply the selected status color consistently to the compact percentage, status dot, progress line, and expanded percentage.
 
 ## Expanded panel
 
@@ -57,4 +68,5 @@ Add a lightweight footer below the quota sections:
 - The running bar has exactly one watchdog and one UI process.
 - Live RPC returns both five-hour and weekly quota windows.
 - The installed runtime script matches the repository script.
-- Static checks confirm the removed heading and status badge are absent, both quota sections and reset fields remain, detail percentages use 18-pixel text, reset times use 16-pixel text, the compact refresh control and last-sync text remain, and the horizontal offset increased by exactly 20 pixels.
+- Boundary checks confirm 19% is red, 20% and 39% are yellow, and 40% is green.
+- Static checks confirm the removed heading and status badge are absent, both quota sections and reset fields remain, detail percentages use 18-pixel text, reset times use 16-pixel text, the compact refresh control and last-sync text remain, and the horizontal offset is 71 pixels.
