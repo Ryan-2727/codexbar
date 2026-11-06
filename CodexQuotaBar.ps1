@@ -300,6 +300,8 @@ $details.CornerRadius = '9'
 $details.Margin = '0,0,0,10'
 $details.Padding = '10,10,10,10'
 $details.Visibility = 'Collapsed'
+$detailsTranslate = [System.Windows.Media.TranslateTransform]::new(0, 0)
+$details.RenderTransform = $detailsTranslate
 $detailsStack = [System.Windows.Controls.StackPanel]::new(); $details.Child = $detailsStack
 $fiveDetailLabel = New-TextBlock '5 小时' 11 '#C3C9D2' 'SemiBold'
 $fiveDetailValue = New-TextBlock '—' 18 '#F3F4F6' 'SemiBold'
@@ -321,16 +323,20 @@ $weeklyResetValue.Margin = '0,1,0,10'
 $syncFooter = [System.Windows.Controls.DockPanel]::new()
 $syncFooter.Margin = '0,2,0,0'
 $refreshButton = [System.Windows.Controls.Button]::new()
-$refreshButton.Content = '↻'
 $refreshButton.ToolTip = '立即同步'
-$refreshButton.FontFamily = 'Segoe UI Symbol'; $refreshButton.FontSize = 15
-$refreshButton.FontWeight = 'SemiBold'
 $refreshButton.Foreground = [System.Windows.Media.Brushes]::White
 $refreshButton.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#263B4D5E')
 $refreshButton.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#4A657A8E')
 $refreshButton.BorderThickness = '1'; $refreshButton.Padding = '0'
 $refreshButton.Width = 24; $refreshButton.Height = 24
 $refreshButton.Cursor = [System.Windows.Input.Cursors]::Hand
+$refreshIcon = New-TextBlock '↻' 15 '#FFFFFF' 'SemiBold'
+$refreshIcon.FontFamily = 'Segoe UI Symbol'
+$refreshIcon.HorizontalAlignment = 'Center'; $refreshIcon.VerticalAlignment = 'Center'
+$refreshIcon.RenderTransformOrigin = [System.Windows.Point]::new(0.5, 0.5)
+$refreshRotate = [System.Windows.Media.RotateTransform]::new(0)
+$refreshIcon.RenderTransform = $refreshRotate
+$refreshButton.Content = $refreshIcon
 [System.Windows.Controls.DockPanel]::SetDock($refreshButton, 'Right')
 $syncText = New-TextBlock '等待同步' 9 '#89909B'
 $syncText.Margin = '0,0,6,0'
@@ -406,22 +412,77 @@ function Position-Overlay {
 function Toggle-Details {
     $script:isDetailsOpen = -not $script:isDetailsOpen
     if ($script:isDetailsOpen) {
-        $details.Opacity = 0
+        $details.Opacity = 1
+        $detailsTranslate.Y = 0
         $details.Visibility = 'Visible'
-        $fadeIn = [System.Windows.Media.Animation.DoubleAnimation]::new(0, 1, [TimeSpan]::FromMilliseconds(160))
+        Position-Overlay
+
+        $openEase = [System.Windows.Media.Animation.CubicEase]::new()
+        $openEase.EasingMode = [System.Windows.Media.Animation.EasingMode]::EaseOut
+        $fadeIn = [System.Windows.Media.Animation.DoubleAnimation]::new(0, 1, [TimeSpan]::FromMilliseconds(180))
+        $fadeIn.EasingFunction = $openEase
+        $fadeIn.FillBehavior = [System.Windows.Media.Animation.FillBehavior]::Stop
+        $slideIn = [System.Windows.Media.Animation.DoubleAnimation]::new(6, 0, [TimeSpan]::FromMilliseconds(180))
+        $slideIn.EasingFunction = $openEase
+        $slideIn.FillBehavior = [System.Windows.Media.Animation.FillBehavior]::Stop
         $details.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $fadeIn)
+        $detailsTranslate.BeginAnimation([System.Windows.Media.TranslateTransform]::YProperty, $slideIn)
     }
     else {
-        $details.Visibility = 'Collapsed'
+        $closeEase = [System.Windows.Media.Animation.CubicEase]::new()
+        $closeEase.EasingMode = [System.Windows.Media.Animation.EasingMode]::EaseIn
+        $fadeOut = [System.Windows.Media.Animation.DoubleAnimation]::new(1, 0, [TimeSpan]::FromMilliseconds(120))
+        $fadeOut.EasingFunction = $closeEase
+        $slideOut = [System.Windows.Media.Animation.DoubleAnimation]::new(0, 6, [TimeSpan]::FromMilliseconds(120))
+        $slideOut.EasingFunction = $closeEase
+        $fadeOut.Add_Completed({
+            if (-not $script:isDetailsOpen) {
+                $details.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $null)
+                $detailsTranslate.BeginAnimation([System.Windows.Media.TranslateTransform]::YProperty, $null)
+                $details.Opacity = 1
+                $detailsTranslate.Y = 0
+                $details.Visibility = 'Collapsed'
+                Position-Overlay
+            }
+        })
+        $details.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $fadeOut)
+        $detailsTranslate.BeginAnimation([System.Windows.Media.TranslateTransform]::YProperty, $slideOut)
     }
-    Position-Overlay
 }
 
+$script:isRefreshing = $false
 $outer.Add_MouseLeftButtonUp({ if (-not $refreshButton.IsMouseOver) { Toggle-Details } })
-$refreshButton.Add_Click({ Update-Overlay; Position-Overlay })
+$refreshButton.Add_Click({
+    if ($script:isRefreshing) { return }
+    $script:isRefreshing = $true
+    $refreshButton.IsEnabled = $false
+
+    $spinEase = [System.Windows.Media.Animation.QuadraticEase]::new()
+    $spinEase.EasingMode = [System.Windows.Media.Animation.EasingMode]::EaseInOut
+    $spin = [System.Windows.Media.Animation.DoubleAnimation]::new(0, 360, [TimeSpan]::FromMilliseconds(400))
+    $spin.EasingFunction = $spinEase
+    $spin.FillBehavior = [System.Windows.Media.Animation.FillBehavior]::Stop
+    $spin.Add_Completed({
+        try {
+            Update-Overlay
+            Position-Overlay
+        }
+        finally {
+            $refreshRotate.BeginAnimation([System.Windows.Media.RotateTransform]::AngleProperty, $null)
+            $refreshRotate.Angle = 0
+            $refreshButton.IsEnabled = $true
+            $script:isRefreshing = $false
+        }
+    })
+    $refreshRotate.BeginAnimation([System.Windows.Media.RotateTransform]::AngleProperty, $spin)
+})
 $window.Add_Deactivated({
     if ($script:isDetailsOpen) {
         $script:isDetailsOpen = $false
+        $details.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $null)
+        $detailsTranslate.BeginAnimation([System.Windows.Media.TranslateTransform]::YProperty, $null)
+        $details.Opacity = 1
+        $detailsTranslate.Y = 0
         $details.Visibility = 'Collapsed'
         Position-Overlay
     }
