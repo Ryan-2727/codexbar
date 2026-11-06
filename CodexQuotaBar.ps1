@@ -221,9 +221,9 @@ $outer.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromStri
 $outer.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#4A677589')
 $outer.BorderThickness = '1'
 $outer.CornerRadius = '12'
-$outer.Padding = '14,6,14,6'
+$outer.Padding = '10,6,10,6'
 $outer.Cursor = [System.Windows.Input.Cursors]::Hand
-$outer.Width = 248
+$outer.Width = 160
 $shadow = [System.Windows.Media.Effects.DropShadowEffect]::new()
 $shadow.Color = [System.Windows.Media.Colors]::Black
 $shadow.BlurRadius = 24; $shadow.ShadowDepth = 5; $shadow.Opacity = 0.28
@@ -241,6 +241,7 @@ $outer.Child = $root
 
 $bar = [System.Windows.Controls.StackPanel]::new()
 $bar.Orientation = 'Horizontal'
+$bar.HorizontalAlignment = 'Center'
 
 function New-TextBlock([string]$Text, [double]$Size, [string]$Color, [string]$Weight = 'Medium') {
     $block = [System.Windows.Controls.TextBlock]::new()
@@ -267,14 +268,7 @@ function New-HairlineMeter {
     return [pscustomobject]@{ Track = $track; Fill = $fill }
 }
 
-$brand = New-TextBlock 'Codex 配额' 11 '#E8E8EB' 'SemiBold'
-$brand.Margin = '0,0,12,0'
-$null = $bar.Children.Add($brand)
-$divider = [System.Windows.Controls.Border]::new()
-$divider.Width = 1; $divider.Height = 28; $divider.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#32353C')
-$divider.Margin = '0,0,12,0'; $null = $bar.Children.Add($divider)
-
-$fiveStack = [System.Windows.Controls.StackPanel]::new(); $fiveStack.Width = 44; $fiveStack.Margin = '0,0,12,0'
+$fiveStack = [System.Windows.Controls.StackPanel]::new(); $fiveStack.Width = 44; $fiveStack.Margin = '0,0,10,0'
 $fiveTitleRow = [System.Windows.Controls.StackPanel]::new(); $fiveTitleRow.Orientation = 'Horizontal'
 $fiveStatusDot = [System.Windows.Shapes.Ellipse]::new(); $fiveStatusDot.Width = 7; $fiveStatusDot.Height = 7; $fiveStatusDot.Margin = '0,0,5,0'
 $fiveStatusDot.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#737A85')
@@ -286,7 +280,7 @@ $null = $fiveStack.Children.Add($fiveTitleRow); $null = $fiveStack.Children.Add(
 
 $divider2 = [System.Windows.Controls.Border]::new()
 $divider2.Width = 1; $divider2.Height = 28; $divider2.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#32353C')
-$divider2.Margin = '0,0,12,0'; $null = $bar.Children.Add($divider2)
+$divider2.Margin = '0,0,10,0'; $null = $bar.Children.Add($divider2)
 
 $weeklyStack = [System.Windows.Controls.StackPanel]::new(); $weeklyStack.Width = 44
 $weeklyTitleRow = [System.Windows.Controls.StackPanel]::new(); $weeklyTitleRow.Orientation = 'Horizontal'
@@ -407,7 +401,7 @@ function Position-Overlay {
     if ($script:codexHandle -eq [IntPtr]::Zero) { return }
     $window.UpdateLayout()
     $workArea = [System.Windows.SystemParameters]::WorkArea
-    $window.Left = $workArea.Left + ($workArea.Width * 0.14) + ($window.ActualWidth / 8)
+    $window.Left = $workArea.Left + ($workArea.Width * 0.14) + 31
     $window.Top = $workArea.Bottom - $window.ActualHeight - 8
 }
 
