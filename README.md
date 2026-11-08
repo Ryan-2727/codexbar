@@ -43,15 +43,17 @@ Double-click `Start-CodexQuotaBar.cmd`, or run:
 .\Start-CodexQuotaBar.cmd
 ```
 
-The launcher stops older instances and starts the bar without a console window.
+The launcher uses the installed watchdog task when available, or falls back to starting the watchdog without a console window.
 
-## Optional sign-in autostart
+## Recommended desktop lifecycle autostart
 
 Install:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-Autostart.ps1
 ```
+
+This installs a per-user scheduled task. The lightweight watchdog starts at sign-in, launches the bar when the ChatGPT/Codex desktop app opens, stops the bar when the desktop app closes, and restarts automatically after failures.
 
 Remove:
 
@@ -76,14 +78,15 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\CodexQuotaBar.ps1 -Che
 | File | Purpose |
 | --- | --- |
 | `CodexQuotaBar.ps1` | WPF overlay, foreground detection, RPC sync, and interactions |
-| `Start-CodexQuotaBar.cmd` | Cleans old instances and launches the bar |
+| `CodexQuotaBar-Watchdog.ps1` | Follows the ChatGPT/Codex desktop app lifecycle and writes a bounded diagnostic log |
+| `Start-CodexQuotaBar.cmd` | Starts the scheduled watchdog task or uses the manual fallback |
 | `Stop-Existing-CodexQuotaBars.ps1` | Stops duplicate bar processes |
 | `Launch-CodexQuotaBar.vbs` | Starts PowerShell without a console window |
-| `Install-Autostart.ps1` | Adds or removes Windows sign-in autostart |
+| `Install-Autostart.ps1` | Adds or removes the lifecycle watchdog scheduled task |
 | `assets/codex-quota-bar-example.svg` | README example image |
 
 ## Troubleshooting
 
 If `-CheckRpc` reports that Codex is not authenticated, run `codex.cmd login` and finish browser authorization.
 
-If the bar is not visible, open the Codex desktop window and run `Start-CodexQuotaBar.cmd` again.
+If the bar is not visible, open the Codex desktop window and run `Start-CodexQuotaBar.cmd` again. Check `CodexQuotaBar-Watchdog.log` for lifecycle errors.

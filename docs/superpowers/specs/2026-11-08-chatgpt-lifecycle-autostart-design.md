@@ -18,7 +18,8 @@ The scheduled task:
 - Runs the existing watchdog hidden through Windows PowerShell.
 - Allows only one watchdog instance.
 - Has no execution time limit.
-- Restarts the watchdog after one minute when it exits unexpectedly.
+- Uses the task restart setting when Windows classifies an exit as a failure.
+- Adds a one-minute repeating health trigger. If the watchdog is already running, the trigger is ignored; if it has exited, the trigger starts it again.
 - Is started immediately when installed, so a sign-out is not required.
 
 The watchdog remains lightweight and polls every two seconds. The quota bar process itself is not permanent.
@@ -71,6 +72,7 @@ Keep these behaviors unchanged:
 - Installing creates exactly one enabled `CodexQuotaBar Watchdog` scheduled task and removes the legacy shortcut.
 - With ChatGPT/Codex already running, starting the task produces exactly one watchdog and one bar process.
 - Terminating the bar while the desktop app remains running causes the watchdog to recreate it within the polling interval.
+- Terminating the watchdog causes the scheduled health trigger to recreate it within 90 seconds without creating duplicates.
 - Live quota RPC returns both five-hour and weekly data.
 - The runtime copies match the repository sources.
 - Removal behavior is validated without leaving the user's installation removed at the end.

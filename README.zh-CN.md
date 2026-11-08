@@ -43,11 +43,15 @@ npm.cmd install -g @openai/codex
 .\Start-CodexQuotaBar.cmd
 ```
 
-## 设置登录自启
+如果已经安装计划任务，启动器会优先启动受托管的监控器；否则使用无窗口的手动监控器。
+
+## 推荐：跟随桌面端生命周期自动启停
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-Autostart.ps1
 ```
+
+安装后，轻量监控器会在登录时启动：打开 ChatGPT/Codex 桌面端时启动浮条，完全关闭桌面端时停止浮条；监控器异常退出后由 Windows 自动恢复。
 
 移除自启：
 
@@ -72,14 +76,15 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\CodexQuotaBar.ps1 -Che
 | 文件 | 用途 |
 | --- | --- |
 | `CodexQuotaBar.ps1` | 浮条界面、前台检测、RPC 同步与交互 |
-| `Start-CodexQuotaBar.cmd` | 清理旧实例并启动浮条 |
+| `CodexQuotaBar-Watchdog.ps1` | 跟随 ChatGPT/Codex 桌面端生命周期，并写入有限大小的诊断日志 |
+| `Start-CodexQuotaBar.cmd` | 启动计划任务监控器，未安装时使用手动回退 |
 | `Stop-Existing-CodexQuotaBars.ps1` | 清理重复实例 |
 | `Launch-CodexQuotaBar.vbs` | 无控制台窗口启动 |
-| `Install-Autostart.ps1` | 添加或移除登录自启 |
+| `Install-Autostart.ps1` | 添加或移除生命周期监控计划任务 |
 | `assets/codex-quota-bar-example.svg` | README 示例图片 |
 
 ## 排错
 
 如果 `-CheckRpc` 提示未登录，请重新运行 `codex.cmd login` 并完成浏览器授权。
 
-如果浮条不显示，请先打开 Codex 桌面窗口，再运行 `Start-CodexQuotaBar.cmd`。
+如果浮条不显示，请先打开 Codex 桌面窗口，再运行 `Start-CodexQuotaBar.cmd`，并查看 `CodexQuotaBar-Watchdog.log` 中的错误。
