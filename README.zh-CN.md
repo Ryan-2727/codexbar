@@ -53,6 +53,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-Autostart.ps1
 
 安装后，轻量监控器会在登录时启动：打开 ChatGPT/Codex 桌面端时启动浮条，完全关闭桌面端时停止浮条；监控器异常退出后由 Windows 自动恢复。
 
+计划任务通过无窗口的 Windows Script Host 启动监控器；即使 Windows Terminal 是系统默认终端，长期运行的监控器也不会打开终端窗口。
+
 移除自启：
 
 ```powershell
@@ -79,7 +81,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\CodexQuotaBar.ps1 -Che
 | `CodexQuotaBar-Watchdog.ps1` | 跟随 ChatGPT/Codex 桌面端生命周期，并写入有限大小的诊断日志 |
 | `Start-CodexQuotaBar.cmd` | 启动计划任务监控器，未安装时使用手动回退 |
 | `Stop-Existing-CodexQuotaBars.ps1` | 清理重复实例 |
-| `Launch-CodexQuotaBar.vbs` | 无控制台窗口启动 |
+| `Launch-CodexQuotaBar.vbs` | 无控制台窗口运行监控器，并保持计划任务处于活动状态 |
 | `Install-Autostart.ps1` | 添加或移除生命周期监控计划任务 |
 | `assets/codex-quota-bar-example.svg` | README 示例图片 |
 

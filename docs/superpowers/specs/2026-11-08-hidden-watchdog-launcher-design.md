@@ -14,7 +14,7 @@ Use the existing `Launch-CodexQuotaBar.vbs` script as the scheduled-task action.
 
 - `Install-Autostart.ps1` will register `wscript.exe` as the action executable.
 - The action will pass the quoted path to `Launch-CodexQuotaBar.vbs`.
-- The VBS launcher will continue to start `CodexQuotaBar-Watchdog.ps1` through `WScript.Shell.Run` with window style `0` and without waiting for it to exit.
+- The VBS launcher will start `CodexQuotaBar-Watchdog.ps1` through `WScript.Shell.Run` with window style `0` and wait for it to exit. Keeping the VBS process alive ensures Task Scheduler continues to treat the watchdog task as running and ignores overlapping health triggers.
 - The logon trigger, one-minute health trigger, single-instance policy, restart settings, and limited interactive user principal remain unchanged.
 - `Start-CodexQuotaBar.cmd` already uses the same VBS launcher as its fallback and needs no behavioral change.
 

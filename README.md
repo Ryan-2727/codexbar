@@ -55,6 +55,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-Autostart.ps1
 
 This installs a per-user scheduled task. The lightweight watchdog starts at sign-in, launches the bar when the ChatGPT/Codex desktop app opens, stops the bar when the desktop app closes, and restarts automatically after failures.
 
+The task uses a windowless Windows Script Host launcher, so the long-running watchdog does not open Windows Terminal even when it is the system's default terminal application.
+
 Remove:
 
 ```powershell
@@ -81,7 +83,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\CodexQuotaBar.ps1 -Che
 | `CodexQuotaBar-Watchdog.ps1` | Follows the ChatGPT/Codex desktop app lifecycle and writes a bounded diagnostic log |
 | `Start-CodexQuotaBar.cmd` | Starts the scheduled watchdog task or uses the manual fallback |
 | `Stop-Existing-CodexQuotaBars.ps1` | Stops duplicate bar processes |
-| `Launch-CodexQuotaBar.vbs` | Starts PowerShell without a console window |
+| `Launch-CodexQuotaBar.vbs` | Runs the watchdog without a console window while keeping the scheduled task active |
 | `Install-Autostart.ps1` | Adds or removes the lifecycle watchdog scheduled task |
 | `assets/codex-quota-bar-example.svg` | README example image |
 

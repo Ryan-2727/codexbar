@@ -1,3 +1,3 @@
 Set shell = CreateObject("WScript.Shell")
 scriptPath = Replace(WScript.ScriptFullName, "Launch-CodexQuotaBar.vbs", "CodexQuotaBar-Watchdog.ps1")
-shell.Run "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & scriptPath & """", 0, False
+shell.Run "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & scriptPath & """", 0, True

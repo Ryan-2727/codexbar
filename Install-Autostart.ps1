@@ -5,6 +5,7 @@ $ErrorActionPreference = 'Stop'
 
 $taskName = 'CodexQuotaBar Watchdog'
 $watchdog = Join-Path $PSScriptRoot 'CodexQuotaBar-Watchdog.ps1'
+$launcher = Join-Path $PSScriptRoot 'Launch-CodexQuotaBar.vbs'
 $stopScript = Join-Path $PSScriptRoot 'Stop-Existing-CodexQuotaBars.ps1'
 $shortcutPath = Join-Path ([Environment]::GetFolderPath('Startup')) 'Codex Quota Bar.lnk'
 
@@ -31,15 +32,16 @@ if ($Remove) {
 }
 
 if (-not (Test-Path -LiteralPath $watchdog)) { throw 'CodexQuotaBar-Watchdog.ps1 was not found.' }
+if (-not (Test-Path -LiteralPath $launcher)) { throw 'Launch-CodexQuotaBar.vbs was not found.' }
 
 Remove-WatchdogTask
 Remove-LegacyShortcut
 
-$powershellPath = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
-$arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$watchdog`""
+$wscriptPath = "$env:SystemRoot\System32\wscript.exe"
+$arguments = "`"$launcher`""
 $userId = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 
-$action = New-ScheduledTaskAction -Execute $powershellPath -Argument $arguments -WorkingDirectory $PSScriptRoot
+$action = New-ScheduledTaskAction -Execute $wscriptPath -Argument $arguments -WorkingDirectory $PSScriptRoot
 $logonTrigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
 $healthTrigger = New-ScheduledTaskTrigger `
     -Once `
