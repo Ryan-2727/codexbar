@@ -12,7 +12,6 @@ Add-Type @'
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 
 public static class CodexWindowNative {
     [StructLayout(LayoutKind.Sequential)]
@@ -22,22 +21,15 @@ public static class CodexWindowNative {
     [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
-    [DllImport("user32.dll")] private static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int maxCount);
-    [DllImport("user32.dll")] private static extern int GetWindowTextLength(IntPtr hWnd);
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
     public static bool IsForegroundWindow(IntPtr hWnd) {
         return hWnd != IntPtr.Zero && GetForegroundWindow() == hWnd;
     }
 
-    public static IntPtr FindForegroundCodexWindow() {
-        var hWnd = GetForegroundWindow();
-        if (hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) return IntPtr.Zero;
+    public static bool IsCodexWindow(IntPtr hWnd) {
+        if (hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) return false;
 
-        var length = GetWindowTextLength(hWnd);
-        var titleBuilder = new StringBuilder(Math.Max(length + 1, 1));
-        if (length > 0) GetWindowText(hWnd, titleBuilder, titleBuilder.Capacity);
-        var title = titleBuilder.ToString();
         uint processId;
         GetWindowThreadProcessId(hWnd, out processId);
 
@@ -52,8 +44,19 @@ public static class CodexWindowNative {
                 var path = process.MainModule.FileName;
                 isCodexPackage = path.IndexOf("OpenAI.Codex_", StringComparison.OrdinalIgnoreCase) >= 0;
             } catch { }
-            return isCodexProcess || isCodexPackage || title.IndexOf("Codex", StringComparison.OrdinalIgnoreCase) >= 0 ? hWnd : IntPtr.Zero;
-        } catch { return IntPtr.Zero; }
+            return isCodexProcess || isCodexPackage;
+        } catch { return false; }
+    }
+
+    public static IntPtr FindForegroundCodexWindow() {
+        var hWnd = GetForegroundWindow();
+        return IsCodexWindow(hWnd) ? hWnd : IntPtr.Zero;
+    }
+
+    public static bool CanKeepOverlayVisible(IntPtr overlayHandle, IntPtr codexHandle) {
+        return IsForegroundWindow(overlayHandle)
+            && IsCodexWindow(codexHandle)
+            && !IsIconic(codexHandle);
     }
 }
 '@
@@ -499,10 +502,10 @@ $timer.Add_Tick({
     try {
         $handle = [CodexWindowNative]::FindForegroundCodexWindow()
         if ($handle -eq [IntPtr]::Zero) {
-            if (-not [CodexWindowNative]::IsForegroundWindow($script:quotaBarHandle)) {
-                $script:codexHandle = [IntPtr]::Zero
-                if ($window.Visibility -eq 'Visible') { $window.Hide() }
-            }
+            if ([CodexWindowNative]::CanKeepOverlayVisible($script:quotaBarHandle, $script:codexHandle)) { return }
+
+            $script:codexHandle = [IntPtr]::Zero
+            if ($window.Visibility -eq 'Visible') { $window.Hide() }
             return
         }
 

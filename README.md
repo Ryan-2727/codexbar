@@ -9,7 +9,7 @@ A lightweight Windows desktop bar that shows Codex weekly remaining quota, with 
 ## Highlights
 
 - Reads live weekly quota and reset times from the local Codex CLI read-only `app-server` JSON-RPC.
-- Appears only while a Codex desktop window is in the foreground; hides when another app becomes active.
+- Appears only while the official ChatGPT/Codex desktop window is in the foreground; hides when another app becomes active.
 - Soft-glass dark UI with low-contrast borders, hover polish, status dots, and compact progress lines.
 - Click the bar to expand a details panel with reset times, sync state, and a manual sync button.
 - Uses green, amber, and red states for healthy, low, and critical remaining quota.
